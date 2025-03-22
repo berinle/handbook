@@ -6,6 +6,8 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,22 +42,24 @@ public class HandbookService {
         return Files.readString(Paths.get(HANDBOOK_FILE));
     }
 
+    @Transactional
     public void updateHandbook(String newContent) throws IOException {
         Files.writeString(Paths.get(HANDBOOK_FILE), newContent);
         updateEmbeddings(newContent);
     }
 
     private void updateEmbeddings(String text) {
-        List<String> chunks = chunkText(text, 1000); // Using 1000 as a reasonable chunk size
-//        repository.deleteAll();
-        repository.myDeleteAll();
+        List<String> chunks = chunkText(text, 1000);
+        repository.deleteAll();
 
         for (String chunk : chunks) {
             HandbookChunk handbookChunk = new HandbookChunk();
             handbookChunk.setChunkText(chunk);
-            handbookChunk.setEmbedding(embeddingService.getEmbedding(chunk));
-//            repository.save(handbookChunk);
-            repository.saveCustom(handbookChunk.getChunkText(), handbookChunk.getEmbedding());
+            float[] embedding = embeddingService.getEmbedding(chunk);
+            String vectorString = "[" + String.join(",", java.util.stream.IntStream.range(0, embedding.length)
+                .mapToObj(i -> String.format("%.6f", embedding[i]))
+                .toList()) + "]";
+            repository.saveCustom(chunk, vectorString);
         }
     }
 
@@ -86,7 +90,11 @@ public class HandbookService {
 
     public String retrieveContext(String query, int topN) {
         float[] queryEmbedding = embeddingService.getEmbedding(query);
-        List<HandbookChunk> chunks = repository.findTopNByEmbeddingSimilarity(queryEmbedding, topN);
+        // Format the vector string with brackets for PostgreSQL
+        String vectorString = "[" + String.join(",", java.util.stream.IntStream.range(0, queryEmbedding.length)
+            .mapToObj(i -> String.format("%.6f", queryEmbedding[i]))
+            .toList()) + "]";
+        List<HandbookChunk> chunks = repository.findTopNByEmbeddingSimilarity(vectorString, topN);
         return String.join("\n\n", chunks.stream().map(HandbookChunk::getChunkText).toList());
     }
 }

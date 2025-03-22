@@ -1,0 +1,13 @@
+applications:
+- name: handbook
+  memory: 1G
+  instances: 1
+  path: target/handbook-0.0.1-SNAPSHOT.jar
+  buildpacks:
+  - java_buildpack
+  services:
+  - handbook-db
+  env:
+    JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{enabled: false}'
+    SPRING_PROFILES_ACTIVE: cloud
+    JAVA_OPTS: '-XX:MaxMetaspaceSize=128M'

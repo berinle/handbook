@@ -17,14 +17,7 @@ public class HandbookChunk {
     @Column(name = "chunk_text", nullable = false)
     private String chunkText;
 
-//    @Column(name = "embedding", columnDefinition = "vector")
-//    @Type(value = VectorType)
-//    private float[] embedding;
-
+    @Type(PostgresVectorType.class)
     @Column(name = "embedding", columnDefinition = "vector")
-    @JdbcTypeCode(SqlTypes.VECTOR)
-    private float[] embedding;
-
-//    @Column(name = "embedding")
-//    private float[] embedding;
+    private String embedding;
 }
