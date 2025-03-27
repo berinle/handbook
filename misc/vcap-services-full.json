@@ -1,0 +1,74 @@
+{
+    "genai": [
+      {
+        "binding_guid": "493b3bd8-0f5d-4da0-bca9-a3fc96da81e9",
+        "binding_name": null,
+        "credentials": {
+          "api_base": "https://genai-proxy.sys.dhaka.cf-app.com/82f49794-5957-440c-8156-4dfc0ff23e99/openai",
+          "api_key": "eyJhb...",
+          "model_aliases": null,
+          "model_capabilities": [
+            "chat"
+          ],
+          "model_name": "gemma2:2b",
+          "wire_format": "openai"
+        },
+        "instance_guid": "bd829b95-b23b-444a-a68f-3ea8b88af227",
+        "instance_name": "gemma2",
+        "label": "genai",
+        "name": "gemma2",
+        "plan": "gemma2:2b",
+        "provider": null,
+        "syslog_drain_url": null,
+        "tags": [
+          "genai",
+          "llm"
+        ],
+        "volume_mounts": []
+      },
+      {
+        "binding_guid": "3b09f8df-c6d7-4540-ad53-9073cf32de4d",
+        "binding_name": null,
+        "credentials": {
+          "api_base": "https://genai-proxy.sys.dhaka.cf-app.com/6dda8877-6b0f-43a9-8191-bad4c239f564/openai",
+          "api_key": "eyJhb...",
+          "model_aliases": null,
+          "model_capabilities": [
+            "embedding"
+          ],
+          "model_name": "nomic-embed-text",
+          "wire_format": "openai"
+        },
+        "instance_guid": "6b530bca-f347-49d1-a547-093a631cc2a3",
+        "instance_name": "nomic",
+        "label": "genai",
+        "name": "nomic",
+        "plan": "nomic-embed-text",
+        "provider": null,
+        "syslog_drain_url": null,
+        "tags": [
+          "genai",
+          "llm"
+        ],
+        "volume_mounts": []
+      }
+    ],
+    "user-provided": [
+      {
+        "binding_guid": "23e5edef-7c60-474c-bfe9-453633f4fb67",
+        "binding_name": null,
+        "credentials": {
+          "jdbcUrl": "jdbc:postgresql://REDACTED:REDACTED/handbook",
+          "password": "REDACTED",
+          "username": "REDACTED"
+        },
+        "instance_guid": "09287c29-e0fc-4edc-b973-920b66f9366c",
+        "instance_name": "handbook-db",
+        "label": "user-provided",
+        "name": "handbook-db",
+        "syslog_drain_url": null,
+        "tags": [],
+        "volume_mounts": []
+      }
+    ]
+  }

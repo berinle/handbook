@@ -1,0 +1,22 @@
+{
+    "id": "",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "content": "Here is a summary of the Travel Policy based on the provided text:\n\n**Travel Policy Overview:**\n\n* **Purpose:** This policy provides guidelines and procedures for business travel by AcmeCorp employees. \n    * The main goals are to ensure employee safety, cost-effectiveness, and efficient use of company resources when traveling for work purposes.\n* **Scope:** Applies to all AcmeCorp employees who are required to travel for work reasons (meetings, conferences, training, client visits).\n\n**Travel Authorization:**\n   * **All business travel must be pre-approved by the employee's direct manager.** \n   * **International travel requires approval from a department director or higher.**\n   * **A travel request form is needed at least two weeks before travel.** \n\n\n**Important Travel Details:**\n\n* The policy provides details on requesting and approving travel, especially for international trips.\n* You'll find information on how to submit requests, timing requirements, and specific approvals needed.\n * The document will likely have additional sections covering specific needs like flight classes (economy or business) for certain trips.\n\n\n**To get the most detailed information about the Travel Policy:**\n\n1. **Consult the full policy document.**  It's essential to read the complete text as it contains more specifics, including:\n   * **Background and Scope of the Travel Policy**\n   * **Travel Authorization process (approvals)\n   * **Reporting Requirements & Documentation\n   * **Policy Updates and Notifications** \n\n\n\nLet me know if you have any specific questions or want clarification on certain aspects of the policy! \n",
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1743103732,
+    "model": "gemma2:2b",
+    "system_fingerprint": "tanzuAiServer",
+    "object": "chat.completion",
+    "usage": {
+      "completion_tokens": 329,
+      "prompt_tokens": 1134,
+      "total_tokens": 1463
+    }
+  }
