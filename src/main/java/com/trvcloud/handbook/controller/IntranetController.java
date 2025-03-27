@@ -29,9 +29,6 @@ public class IntranetController {
     private final WebClient ollamaClient;
     private final String bearerToken;
     private final ObjectMapper objectMapper;
-//    private final String environment;
-
-//    @Autowired
     private Environment environment;
 
     @Autowired
