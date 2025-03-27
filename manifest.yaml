@@ -4,10 +4,13 @@ applications:
   instances: 1
   path: target/handbook-0.0.1-SNAPSHOT.jar
   buildpacks:
-  - java_buildpack
+  - java_buildpack_offline
   services:
   - handbook-db
+  - gemma2
+  - nomic
   env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+ } }'
     JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{enabled: false}'
     SPRING_PROFILES_ACTIVE: cloud
     JAVA_OPTS: '-XX:MaxMetaspaceSize=128M'

@@ -1,7 +1,11 @@
 package com.trvcloud.handbook.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trvcloud.handbook.service.EmbeddingService;
 import com.trvcloud.handbook.service.HandbookService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -16,13 +20,23 @@ import java.util.Map;
 @Controller
 public class IntranetController {
 
+    private static final Logger logger = LoggerFactory.getLogger(IntranetController.class);
+
     private final HandbookService handbookService;
     private final WebClient ollamaClient;
+    private final String bearerToken;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public IntranetController(HandbookService handbookService, @Value("${ollama.endpoint}") String ollamaEndpoint) {
+    public IntranetController(
+            HandbookService handbookService, 
+            @Value("${ollama.endpoint}") String ollamaEndpoint,
+            @Value("${ollama.api.key}") String apiKey,
+            ObjectMapper objectMapper) {
         this.handbookService = handbookService;
+        this.bearerToken = apiKey;
         this.ollamaClient = WebClient.create(ollamaEndpoint);
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/")
@@ -64,8 +78,16 @@ public class IntranetController {
         String context = handbookService.retrieveContext(userMessage, 5);
         String fullPrompt = "Context:\n" + context + "\n\nUser Query: " + userMessage + "\n\nAnswer based on the above context:";
 
+        ChatRequest chatRequest = new ChatRequest("gemma2:2b", fullPrompt, false);
+        try {
+            logger.info("Request body: {}", objectMapper.writeValueAsString(chatRequest));
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to serialize request body", e);
+        }
+
         return ollamaClient.post()
-                .bodyValue(new ChatRequest("gemma2:2b", fullPrompt, false))
+                .headers(headers -> headers.setBearerAuth(bearerToken))
+                .bodyValue(chatRequest)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .block();

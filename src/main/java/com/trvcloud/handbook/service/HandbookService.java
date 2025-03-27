@@ -8,44 +8,64 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class HandbookService {
 
-    private static final String HANDBOOK_FILE = "src/main/resources/handbook.md";
-    // private static final String HANDBOOK_FILE = "classpath:handbook.md";
+    private static final String HANDBOOK_FILE = "classpath:handbook.md";
     private final HandbookChunkRepository repository;
     private final EmbeddingService embeddingService;
     private final Parser markdownParser;
     private final HtmlRenderer htmlRenderer;
+    private final ResourceLoader resourceLoader;
 
     @Autowired
-    public HandbookService(HandbookChunkRepository repository, EmbeddingService embeddingService) {
+    public HandbookService(HandbookChunkRepository repository, 
+                         EmbeddingService embeddingService,
+                         ResourceLoader resourceLoader) {
         this.repository = repository;
         this.embeddingService = embeddingService;
+        this.resourceLoader = resourceLoader;
         this.markdownParser = Parser.builder().build();
         this.htmlRenderer = HtmlRenderer.builder().build();
     }
 
     public String getHandbookHtml() throws IOException {
-        String mdContent = Files.readString(Paths.get(HANDBOOK_FILE));
+        String mdContent = getHandbookContent();
         return htmlRenderer.render(markdownParser.parse(mdContent));
     }
 
     public String getHandbookContent() throws IOException {
-        return Files.readString(Paths.get(HANDBOOK_FILE));
+        Resource resource = resourceLoader.getResource(HANDBOOK_FILE);
+        try (Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)) {
+            return FileCopyUtils.copyToString(reader);
+        }
     }
 
     @Transactional
     public void updateHandbook(String newContent) throws IOException {
-        Files.writeString(Paths.get(HANDBOOK_FILE), newContent);
-        updateEmbeddings(newContent);
+        Resource resource = resourceLoader.getResource(HANDBOOK_FILE);
+        try {
+            Files.writeString(resource.getFile().toPath(), newContent);
+            updateEmbeddings(newContent);
+        } catch (IOException e) {
+            // Log a warning that file writing isn't supported in this environment
+            // In Cloud Foundry, you might want to store content in database instead
+            throw new UnsupportedOperationException(
+                "Direct file writing not supported in this environment. Consider storing content in database.", e);
+        }
     }
 
     private void updateEmbeddings(String text) {

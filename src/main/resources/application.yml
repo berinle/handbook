@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: handbook
+  
+  datasource:
+    url: ${vcap.services.handbook-db.credentials.jdbcUrl:jdbc:postgresql://localhost:5432/yourdb}
+    username: ${vcap.services.handbook-db.credentials.username:localuser}
+    password: ${vcap.services.handbook-db.credentials.password:localpass}
+  
+  thymeleaf:
+    cache: false
+
+embedding:
+  endpoint: ${vcap.services.nomic.credentials.api_base:http://localhost:11434/api}/embeddings
+  api:
+    key: ${vcap.services.nomic.credentials.api_key:}
+  model:
+    name: ${vcap.services.nomic.credentials.model_name:nomic-embed-text}
+
+ollama:
+  endpoint: ${vcap.services.gemma2.credentials.api_base:http://localhost:11434/api/generate}
+  api:
+    key: ${vcap.services.gemma2.credentials.api_key:}
+  model:
+    name: ${vcap.services.gemma2.credentials.model_name:gemma2:2b}
+
+logging:
+  level:
+    com.trvcloud.handbook.service: DEBUG
+
+# Commented properties converted to YAML:
+#spring:
+#  jpa:
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        type: trace
+#logging:
+#  level:
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE 
+
+---
+# Cloud profile specific configuration
+spring:
+  config:
+    activate:
+      on-profile: cloud
+
+ollama:
+  endpoint: ${vcap.services.gemma2.credentials.api_base}/chat/completions  # Note the /completions append 
