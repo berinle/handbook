@@ -5,11 +5,28 @@
     <title>TRVCloud Chatbot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles.css}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         #chat-window { border: 1px solid #ddd; padding: 15px; height: 400px; overflow-y: scroll; background-color: #f8f9fa; }
         .message { margin-bottom: 10px; }
         .message.user { text-align: right; color: blue; }
         .message.bot { text-align: left; color: green; }
+        .message.bot .content {
+            text-align: left;
+            color: #333;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            max-width: 80%;
+        }
+        .message.bot .content h1,
+        .message.bot .content h2,
+        .message.bot .content h3 { color: #2c3e50; }
+        .message.bot .content ul,
+        .message.bot .content ol { padding-left: 20px; }
+        .message.bot .content code { background: #f8f9fa; padding: 2px 4px; }
+        .message.bot .content pre { background: #f8f9fa; padding: 10px; }
     </style>
 </head>
 <body>
@@ -54,15 +71,32 @@
             localStorage.setItem('chatHistory', JSON.stringify(history));
         }
 
-        // Helper function to add a message to the chat window and update history
+        // Helper function to safely render markdown
+        function renderMarkdown(text) {
+            try {
+                return marked.parse(text);
+            } catch (e) {
+                console.error('Markdown parsing failed:', e);
+                return text;
+            }
+        }
+
+        // Updated addMessage function
         function addMessage(role, text) {
             const chatWindow = document.getElementById('chat-window');
 
             // Create a new message element
             const messageElem = document.createElement('div');
             messageElem.className = 'message ' + role;
-            // Prefix with "You:" for user messages and "Bot:" for bot messages
-            messageElem.innerText = (role === 'user' ? 'You: ' : 'Bot: ') + text;
+
+            if (role === 'user') {
+                // User messages remain as plain text
+                messageElem.innerText = 'You: ' + text;
+            } else {
+                // Bot messages get markdown rendering
+                messageElem.innerHTML = 'Bot: <div class="content">' + renderMarkdown(text) + '</div>';
+            }
+            
             chatWindow.appendChild(messageElem);
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
@@ -72,14 +106,18 @@
             saveChatHistory(history);
         }
 
-        // On page load, restore the chat history
+        // Update the DOMContentLoaded event handler to handle markdown for restored messages
         document.addEventListener('DOMContentLoaded', function() {
             const chatWindow = document.getElementById('chat-window');
             const history = loadChatHistory();
             history.forEach(msg => {
                 const messageElem = document.createElement('div');
                 messageElem.className = 'message ' + msg.role;
-                messageElem.innerText = (msg.role === 'user' ? 'You: ' : 'Bot: ') + msg.text;
+                if (msg.role === 'user') {
+                    messageElem.innerText = 'You: ' + msg.text;
+                } else {
+                    messageElem.innerHTML = 'Bot: <div class="content">' + renderMarkdown(msg.text) + '</div>';
+                }
                 chatWindow.appendChild(messageElem);
             });
             chatWindow.scrollTop = chatWindow.scrollHeight;
