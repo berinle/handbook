@@ -13,8 +13,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.core.env.Environment;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -26,17 +29,23 @@ public class IntranetController {
     private final WebClient ollamaClient;
     private final String bearerToken;
     private final ObjectMapper objectMapper;
+//    private final String environment;
+
+//    @Autowired
+    private Environment environment;
 
     @Autowired
     public IntranetController(
             HandbookService handbookService, 
             @Value("${ollama.endpoint}") String ollamaEndpoint,
             @Value("${ollama.api.key}") String apiKey,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            Environment environment) {
         this.handbookService = handbookService;
         this.bearerToken = apiKey;
         this.ollamaClient = WebClient.create(ollamaEndpoint);
         this.objectMapper = objectMapper;
+        this.environment = environment;
     }
 
     @GetMapping("/")
@@ -76,29 +85,55 @@ public class IntranetController {
         }
 
         String context = handbookService.retrieveContext(userMessage, 5);
-        String fullPrompt = "Context:\n" + context + "\n\nUser Query: " + userMessage + "\n\nAnswer based on the above context:";
+        Object chatRequest;
+        
+        if (environment.matchesProfiles("cloud")) {
+            chatRequest = new CloudChatRequest("gemma2:2b", context, userMessage);
+        } else {
+            String fullPrompt = "Context:\n" + context + "\n\nUser Query: " + userMessage + "\n\nAnswer based on the above context:";
+            chatRequest = new LocalChatRequest("gemma2:2b", fullPrompt, false);
+        }
 
-        ChatRequest chatRequest = new ChatRequest("gemma2:2b", fullPrompt, false);
         try {
             logger.info("Request body: {}", objectMapper.writeValueAsString(chatRequest));
         } catch (JsonProcessingException e) {
             logger.error("Failed to serialize request body", e);
         }
 
-        return ollamaClient.post()
+        Map<String, Object> response = ollamaClient.post()
                 .headers(headers -> headers.setBearerAuth(bearerToken))
                 .bodyValue(chatRequest)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .block();
+
+        if (environment.matchesProfiles("cloud")) {
+            // Transform cloud response to match local format
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
+            if (choices != null && !choices.isEmpty()) {
+                Map<String, Object> firstChoice = choices.get(0);
+                Map<String, Object> message = (Map<String, Object>) firstChoice.get("message");
+                String content = (String) message.get("content");
+                
+                return Map.of(
+                    "model", response.get("model"),
+                    "response", content,
+                    "done", true,
+                    "done_reason", firstChoice.get("finish_reason")
+                );
+            }
+        }
+
+        return response;
     }
 
-    private static class ChatRequest {
+    // Local request format
+    private static class LocalChatRequest {
         private String model;
         private String prompt;
         private boolean stream;
 
-        public ChatRequest(String model, String prompt, boolean stream) {
+        public LocalChatRequest(String model, String prompt, boolean stream) {
             this.model = model;
             this.prompt = prompt;
             this.stream = stream;
@@ -107,5 +142,37 @@ public class IntranetController {
         public String getModel() { return model; }
         public String getPrompt() { return prompt; }
         public boolean isStream() { return stream; }
+    }
+
+    // Cloud request format
+    private static class CloudChatRequest {
+        private String model;
+        private List<Message> messages;
+        private boolean stream = false;
+
+        public CloudChatRequest(String model, String context, String userMessage) {
+            this.model = model;
+            this.messages = Arrays.asList(
+                new Message("system", "Use the following context to answer the user's query:\n\n" + context),
+                new Message("user", userMessage)
+            );
+        }
+
+        public String getModel() { return model; }
+        public List<Message> getMessages() { return messages; }
+        public boolean isStream() { return stream; }
+    }
+
+    private static class Message {
+        private String role;
+        private String content;
+
+        public Message(String role, String content) {
+            this.role = role;
+            this.content = content;
+        }
+
+        public String getRole() { return role; }
+        public String getContent() { return content; }
     }
 }

@@ -33,7 +33,10 @@ To run this application locally, you'll need:
 ## Getting up and running in TPCF
 1. Create a PostgreSQL user-provided service with pgvector:
    ```shell
-   cf create-user-provided-service handbook-db -p '{"uri":"postgres://username:password@host:5432/dbname"}'
+   cf create-user-provided-service handbook-db -p '{"jdbcUrl": "jdbc:postgresql://your-host:5432/yourdb", "username": "your-username", "password": "your-password"}'
+
+   cf create-service genai nomic-embed-text nomic
+   cf create-service genai gemma2:2b gemma2
    ```
 
 2. Deploy the application:
