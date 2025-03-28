@@ -1,5 +1,5 @@
 ## Welcome
-Welcome to the **TRVCloud Employee Handbook**. This document outlines our policies and procedures.
+Welcome to the **ElasticSky Employee Handbook**. This document outlines our policies and procedures.
 
 ---
 
@@ -61,7 +61,7 @@ Welcome to the **TRVCloud Employee Handbook**. This document outlines our polici
 ---
 
 ## **Introduction**
-At TRVCloud, we strive to maintain a **supportive and professional work environment**.
+At ElasticSky, we strive to maintain a **supportive and professional work environment**.
 
 - We encourage **diversity, inclusion, and equal opportunities** for all employees.
 - We expect employees to **act professionally and with integrity**.
@@ -177,7 +177,7 @@ HR must be informed of **any incident of harassment or violence**.
 ---
 
 ## **Employee Acknowledgement**
-**I have read and understood the TRVCloud Employee Handbook. I agree to follow all company policies.**
+**I have read and understood the ElasticSky Employee Handbook. I agree to follow all company policies.**
 
 **Employee Name:** ___________________  
 **Signature:** ___________________  

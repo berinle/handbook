@@ -91,11 +91,11 @@ public class IntranetController {
             chatRequest = new LocalChatRequest("gemma2:2b", fullPrompt, false);
         }
 
-        try {
-            logger.info("Request body: {}", objectMapper.writeValueAsString(chatRequest));
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to serialize request body", e);
-        }
+        // try {
+        //     logger.info("Request body: {}", objectMapper.writeValueAsString(chatRequest));
+        // } catch (JsonProcessingException e) {
+        //     logger.error("Failed to serialize request body", e);
+        // }
 
         Map<String, Object> response = ollamaClient.post()
                 .headers(headers -> headers.setBearerAuth(bearerToken))

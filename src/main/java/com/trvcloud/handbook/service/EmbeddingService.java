@@ -40,12 +40,12 @@ public class EmbeddingService {
 
     public float[] getEmbedding(String text) {
         Object requestBody = requestBuilder.build("nomic-embed-text", text);
-        try {
-            // Print the request body as JSON
-            logger.info("Request body as JSON: {}", objectMapper.writeValueAsString(requestBody));
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to serialize request body", e);
-        }
+        // try {
+        //     // Print the request body as JSON
+        //     logger.info("Request body as JSON: {}", objectMapper.writeValueAsString(requestBody));
+        // } catch (JsonProcessingException e) {
+        //     logger.error("Failed to serialize request body", e);
+        // }
 
         return webClient.post()
                 .headers(headers -> headers.setBearerAuth(bearerToken))
@@ -83,7 +83,7 @@ public class EmbeddingService {
     public static class DefaultEmbeddingRequestBuilder implements EmbeddingRequestBuilder {
         @Override
         public Object build(String model, String text) {
-            logger.info("DefaultEmbeddingRequestBuilder.build called");
+            // logger.info("DefaultEmbeddingRequestBuilder.build called");
             return new DefaultEmbeddingRequest(model, text);
         }
     }
@@ -94,7 +94,7 @@ public class EmbeddingService {
     public static class CloudEmbeddingRequestBuilder implements EmbeddingRequestBuilder {
         @Override
         public Object build(String model, String text) {
-            logger.info("CloudEmbeddingRequestBuilder.build called");
+            // logger.info("CloudEmbeddingRequestBuilder.build called");
             return new CloudEmbeddingRequest(model, text);
         }
     }
