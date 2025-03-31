@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: redacted
+    password: redacted
+embedding:
+  endpoint: http://localhost:11434/api/embeddings
+  api:
+    key: "redacted"
+  model:
+    name: nomic-embed-text
+ollama:
+  endpoint: http://localhost:11434/api/generate
+  api:
+    key: "redacted"

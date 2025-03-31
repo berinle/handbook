@@ -7,9 +7,11 @@ To run this application locally, you'll need:
 
 
 ## Getting up and running locally
-1. From the root of the project, run 
+1. Copy `local.yaml.example` to `local.yaml`
+2. Update `local.yaml` to match credentials for your database
+3. From the root of the project, run 
    ```shell
-   ./mvnw spring-boot:run
+   ./mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.config.location=file:local.yaml"
    ```
 
 ## Getting up and running in TPCF
